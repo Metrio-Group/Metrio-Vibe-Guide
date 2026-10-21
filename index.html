@@ -1,0 +1,476 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Your First App with Claude</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=DM+Mono:wght@500&display=swap">
+<style>
+/* Layout: company-system look (Prosync kit colours) — blue bar, a step rail beside one open step, reference sections below. */
+:root {
+  --chrome: #0145A0;
+  --chrome-ink: #FFFFFF;
+  --chrome-ink-muted: #C9D8F0;
+  --commit: #F2B410;
+  --commit-on: #1A1A1A;
+  --interactive: #205ECA;
+  --interactive-fill: #EAF1FC;
+  --ink: #1F2328;
+  --ink-muted: #59616B;
+  --surface: #FFFFFF;
+  --surface-sunk: #F4F6F9;
+  --surface-work: #F7F8FA;
+  --border: #DCE1E7;
+  --positive: #1E7A45;
+  --positive-fill: #E8F5EE;
+  --negative: #B42318;
+  --negative-fill: #FDECEA;
+  --caution-text: #8A5308;
+  --caution-fill: #FFF6DD;
+  --font-ui: "Inter Tight", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --radius-control: 3px;
+  --radius-card: 4px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --chrome: #0A2F66; --chrome-ink: #FFFFFF; --chrome-ink-muted: #A9BEDF;
+    --commit: #F2B410; --commit-on: #1A1A1A;
+    --interactive: #7EA8F0; --interactive-fill: #1A2740;
+    --ink: #E6E9ED; --ink-muted: #A3ABB5;
+    --surface: #1A1D22; --surface-sunk: #22262C; --surface-work: #121418; --border: #343A42;
+    --positive: #6FCF97; --positive-fill: #17291F; --negative: #F28B82; --negative-fill: #321A18;
+    --caution-text: #F2C46B; --caution-fill: #2E2614;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --chrome: #0A2F66; --chrome-ink: #FFFFFF; --chrome-ink-muted: #A9BEDF;
+  --commit: #F2B410; --commit-on: #1A1A1A;
+  --interactive: #7EA8F0; --interactive-fill: #1A2740;
+  --ink: #E6E9ED; --ink-muted: #A3ABB5;
+  --surface: #1A1D22; --surface-sunk: #22262C; --surface-work: #121418; --border: #343A42;
+  --positive: #6FCF97; --positive-fill: #17291F; --negative: #F28B82; --negative-fill: #321A18;
+  --caution-text: #F2C46B; --caution-fill: #2E2614;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--surface-work); color: var(--ink); font-family: var(--font-ui); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.25; }
+p { margin: 0; }
+a { color: var(--interactive); }
+:focus-visible { outline: 2px solid var(--interactive); outline-offset: 2px; }
+.label { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted); }
+
+/* Bar */
+.bar { background: var(--chrome); color: var(--chrome-ink); }
+.bar .wrap { padding-block: 28px 32px; display: grid; gap: 10px; }
+.bar .label { color: var(--chrome-ink-muted); }
+.bar h1 { font-size: clamp(24px, 4vw, 32px); font-weight: 800; letter-spacing: -0.01em; }
+.bar p { color: var(--chrome-ink-muted); max-width: 62ch; font-size: 16px; }
+
+main .wrap { padding-block: 28px 48px; display: grid; gap: 28px; }
+
+/* "You need" strip */
+.needs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.need { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+.need strong { font-size: 15px; }
+.need span { color: var(--ink-muted); font-size: 14px; }
+
+/* Stepper */
+.guide { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 20px; align-items: start; }
+.rail { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); }
+.rail button { width: 100%; display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 10px; text-align: left; font: inherit; color: var(--ink); background: transparent; border: 1px solid transparent; border-radius: var(--radius-card); padding: 9px 10px; cursor: pointer; }
+.rail button:hover { background: var(--surface); border-color: var(--border); }
+.rail button[aria-current="step"] { background: var(--surface); border-color: var(--interactive); box-shadow: inset 3px 0 0 var(--interactive); }
+.num { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-mono); font-size: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--ink-muted); }
+.rail button[aria-current="step"] .num { border-color: var(--interactive); color: var(--interactive); }
+.rail .done .num { background: var(--positive); border-color: var(--positive); color: var(--surface); }
+.rail .t { font-weight: 600; font-size: 14px; line-height: 1.3; }
+.rail .who { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-muted); }
+
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 24px clamp(16px, 3vw, 32px) 20px; display: grid; gap: 18px; min-width: 0; }
+.panel[hidden] { display: none; }
+.panel h2 { font-size: 22px; font-weight: 700; }
+.panel .lead { font-size: 16px; max-width: 62ch; }
+.panel ol.do, .panel ul.do { margin: 0; padding-left: 22px; display: grid; gap: 8px; max-width: 64ch; }
+.panel h3 { font-size: 15px; font-weight: 700; }
+
+.note { border: 1px solid var(--border); border-left-width: 3px; border-radius: var(--radius-card); padding: 12px 14px; display: grid; gap: 4px; font-size: 14px; }
+.note.info { border-left-color: var(--interactive); background: var(--interactive-fill); }
+.note.warn { border-left-color: var(--caution-text); background: var(--caution-fill); }
+.note b { font-weight: 700; }
+
+.copybox { border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--surface-sunk); display: grid; min-width: 0; }
+.copybox .head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 10px 8px 14px; border-bottom: 1px solid var(--border); }
+.copybox pre { margin: 0; padding: 14px; white-space: pre-wrap; word-break: break-word; font-family: var(--font-ui); font-size: 14.5px; line-height: 1.55; color: var(--ink); }
+
+.btn { font: inherit; font-size: 14px; font-weight: 600; border-radius: var(--radius-control); padding: 7px 14px; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--ink); }
+.btn:hover { border-color: var(--ink-muted); }
+.btn.primary { background: var(--commit); border-color: var(--commit); color: var(--commit-on); }
+.btn.primary:hover { filter: brightness(0.96); }
+.btn.small { font-size: 13px; padding: 4px 10px; }
+.btn[disabled] { opacity: 0.45; cursor: default; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tabs button { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--ink-muted); cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--interactive-fill); border-color: var(--interactive); color: var(--interactive); }
+
+.compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.compare > div { border: 1px solid var(--border); border-radius: var(--radius-card); padding: 12px 14px; display: grid; gap: 6px; align-content: start; font-size: 14px; }
+.compare .bad { background: var(--negative-fill); }
+.compare .good { background: var(--positive-fill); }
+.compare .bad .label { color: var(--negative); }
+.compare .good .label { color: var(--positive); }
+
+.chat { display: grid; gap: 10px; max-width: 640px; }
+.msg { border-radius: var(--radius-card); padding: 10px 14px; font-size: 14px; border: 1px solid var(--border); display: grid; gap: 4px; }
+.msg.you { background: var(--interactive-fill); border-color: transparent; justify-self: end; max-width: 85%; }
+.msg.claude { background: var(--surface-sunk); max-width: 92%; }
+.msg .label { font-size: 11px; }
+
+.shop { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.shop div { border: 1px solid var(--border); border-radius: var(--radius-card); padding: 12px; display: grid; gap: 4px; align-content: start; font-size: 14px; background: var(--surface-sunk); }
+.shop strong { font-size: 14px; }
+
+.pr-mock { border: 1px solid var(--border); border-radius: var(--radius-card); overflow: hidden; font-size: 14px; }
+.pr-mock .top { padding: 12px 14px; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.pill { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 9px; border-radius: 999px; border: 1px solid currentColor; }
+.pill.open { color: var(--positive); }
+.pr-mock .row { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.pr-mock .row:last-child { border-bottom: 0; }
+.pr-mock code { font-family: var(--font-mono); font-size: 13px; color: var(--interactive); word-break: break-all; }
+
+.steps-nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 14px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+.check { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.check input { width: 18px; height: 18px; accent-color: var(--positive); }
+
+/* Reference sections */
+section.ref { display: grid; gap: 14px; }
+section.ref > h2 { font-size: 20px; font-weight: 700; }
+.rules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.rule { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+.rule strong { font-size: 15px; }
+.rule span { color: var(--ink-muted); font-size: 14px; }
+
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { background: var(--surface-sunk); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+
+details.words { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); }
+details.words summary { cursor: pointer; padding: 14px 16px; font-weight: 700; }
+details.words dl { margin: 0; padding: 0 16px 16px; display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 8px 16px; font-size: 14px; }
+details.words dt { font-weight: 700; }
+details.words dd { margin: 0; color: var(--ink-muted); }
+
+footer { color: var(--ink-muted); font-size: 13px; }
+
+@media (max-width: 820px) {
+  .guide { grid-template-columns: minmax(0, 1fr); }
+  .rail { position: static; grid-auto-flow: column; grid-auto-columns: minmax(56px, 1fr); overflow-x: auto; padding-bottom: 4px; }
+  .rail button { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 4px; padding: 8px 4px; }
+  .rail .t { font-size: 12px; }
+  .rail .who { display: none; }
+  .rail button[aria-current="step"] { box-shadow: inset 0 -3px 0 var(--interactive); }
+  .shop { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .needs, .compare, .rules { grid-template-columns: minmax(0, 1fr); }
+  details.words dl { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  details.words dd { margin-bottom: 8px; }
+  .rail .t { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .panel:not([hidden]) { animation: show 180ms ease-out; }
+  @keyframes show { from { opacity: 0.4; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+}
+</style>
+
+<header class="bar">
+  <div class="wrap">
+    <span class="label">Vibe coding · for every department</span>
+    <h1>Your First App with Claude</h1>
+    <p>You know your department's problem. Claude writes the code. This guide walks you from "I have an idea" to "my team is using it", one step at a time. You never need to type code.</p>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <div class="needs" aria-label="What you need">
+      <div class="need"><span class="label">You need</span><strong>Claude</strong><span>The Claude app on your laptop, signed in with your company account.</span></div>
+      <div class="need"><span class="label">You need</span><strong>A company GitHub account</strong><span>Where your app's code is kept safely. IT sets this up.</span></div>
+      <div class="need"><span class="label">You need</span><strong>A real problem</strong><span>Something done today in Excel, on paper or in WhatsApp that wastes time.</span></div>
+    </div>
+
+    <div class="guide">
+      <ol class="rail" id="rail" aria-label="Steps"></ol>
+      <div id="panels">
+
+        <!-- 1 -->
+        <article class="panel" data-step="1" data-title="Ask IT for your app" data-who="Once">
+          <span class="label">Step 1 · once per app</span>
+          <h2>Ask IT to create your app</h2>
+          <p class="lead">IT creates the empty app for you: its project on GitHub, its web address, its database and the staff login. You can't skip this, but it's one short message.</p>
+          <div class="copybox">
+            <div class="head"><span class="label">Message to IT · fill in the brackets</span><button class="btn small" data-copy="msg-it">Copy</button></div>
+            <pre id="msg-it">Hi IT, I'd like to build a small app with Claude.
+
+Department: [e.g. Procurement]
+What it does: [e.g. staff submit purchase requests, managers approve them]
+Who will use it: [e.g. about 15 people in Procurement]
+Sensitive information: [e.g. supplier prices / none]
+
+Could you create the app and send me the GitHub link? Thanks!</pre>
+          </div>
+          <div class="note info"><b>IT replies with a GitHub link</b>It looks like <span style="font-family:var(--font-mono);font-size:13px">github.com/Metrio-Group/your-app-name</span>. Keep it. You need it in the next step.</div>
+        </article>
+
+        <!-- 2 -->
+        <article class="panel" data-step="2" data-title="Open it in Claude" data-who="You">
+          <span class="label">Step 2</span>
+          <h2>Open your app in Claude</h2>
+          <ol class="do">
+            <li>Open the <b>Claude</b> app and go to <b>Code</b>.</li>
+            <li>Start a <b>new session</b>.</li>
+            <li>Choose your app's project. If Claude asks for it, <b>paste the GitHub link</b> IT sent you.</li>
+          </ol>
+          <div class="note info"><b>How you know it worked</b>Claude reads the project's rules, then greets you and asks what you'd like to build. It follows the company's rules by itself, so you don't need to explain them.</div>
+          <div class="note warn"><b>Can't see your project?</b>Your GitHub account may not have access yet. Ask IT to add you to the app.</div>
+        </article>
+
+        <!-- 3 -->
+        <article class="panel" data-step="3" data-title="Tell Claude what you need" data-who="You">
+          <span class="label">Step 3</span>
+          <h2>Tell Claude what you need, in your own words</h2>
+          <p class="lead">Write it the way you'd explain it to a new colleague: your department, how it's done today, what's painful, and who will use it. English, Chinese or Malay are all fine.</p>
+
+          <div class="compare">
+            <div class="bad"><span class="label">Too vague</span><p>"Make me an inventory app."</p></div>
+            <div class="good"><span class="label">Clear</span><p>"I'm from Site. We count materials on paper every Friday and often run out of cement. I want to record stock in and out, and see what's running low. 6 supervisors will use it on their phones."</p></div>
+          </div>
+
+          <h3>Examples to copy and change</h3>
+          <div class="tabs" role="tablist" aria-label="Example instructions" id="ex-tabs"></div>
+          <div class="copybox">
+            <div class="head"><span class="label" id="ex-label">Example</span><button class="btn small" data-copy="ex-text">Copy</button></div>
+            <pre id="ex-text"></pre>
+          </div>
+
+          <div class="note info"><b>Claude asks before it builds</b>Expect a few questions, one at a time, each with a suggested answer. Then Claude writes a short "here's what I understand" and a plan. Reply <b>yes</b> to start, or say what to change.</div>
+        </article>
+
+        <!-- 4 -->
+        <article class="panel" data-step="4" data-title="Let Claude work" data-who="Claude">
+          <span class="label">Step 4</span>
+          <h2>Let Claude work</h2>
+          <p class="lead">Claude builds in small pieces. After each piece it tells you, in plain words, what you can do now and how to see it.</p>
+          <div class="chat" aria-label="Example conversation">
+            <div class="msg you"><span class="label">You</span>Yes, go ahead.</div>
+            <div class="msg claude"><span class="label">Claude</span>Done: you can now add a purchase request, and the total is worked out for you. Next I'll add the manager's approve button. Shall I continue?</div>
+            <div class="msg you"><span class="label">You</span>Yes. Also, the price should include 8% SST.</div>
+          </div>
+          <ul class="do">
+            <li><b>Answer its questions.</b> If you don't know (for example "should cancelled orders count?"), say so. Claude writes it down in the app's open questions instead of guessing.</li>
+            <li><b>Change your mind any time.</b> Just say what you want instead.</li>
+            <li><b>Every piece is saved</b> as a save point, like in a video game, so nothing is lost and any step can be undone.</li>
+          </ul>
+        </article>
+
+        <!-- 5 -->
+        <article class="panel" data-step="5" data-title="Pull request" data-who="Claude">
+          <span class="label">Step 5</span>
+          <h2>Claude opens a pull request</h2>
+          <p class="lead">A pull request is a request to move your changes into the live app. Claude opens it for you and writes a plain summary of what changed. Nothing is live yet.</p>
+          <div class="shop" aria-label="How a change goes live">
+            <div><span class="label">Live app</span><strong>The shop floor</strong><span>Colleagues use it every day.</span></div>
+            <div><span class="label">Your branch</span><strong>A test kitchen</strong><span>Where Claude makes and tries changes.</span></div>
+            <div><span class="label">Preview link</span><strong>A tasting</strong><span>Your changes only, on their own address.</span></div>
+            <div><span class="label">Reviewer</span><strong>The manager</strong><span>Tastes it and says "put it on the menu".</span></div>
+          </div>
+          <div class="pr-mock" aria-label="What a pull request looks like">
+            <div class="top"><span class="pill open">Open</span><strong>New: staff can submit purchase requests</strong></div>
+            <div class="row"><span class="label">Summary</span><span>Staff can submit a request; the total includes SST.</span></div>
+            <div class="row"><span class="label">Preview</span><code>https://add-requests-your-app.workers.dev</code></div>
+          </div>
+        </article>
+
+        <!-- 6 -->
+        <article class="panel" data-step="6" data-title="Try the preview link" data-who="You">
+          <span class="label">Step 6</span>
+          <h2>Try your app on the preview link</h2>
+          <p class="lead">A few minutes after the pull request opens, a preview link appears on it. It's your app with your changes, using test data only. A yellow "Test version" note shows at the top.</p>
+          <ol class="do">
+            <li>Open the preview link and log in with your work account.</li>
+            <li>Try it on your <b>laptop and your phone</b>.</li>
+            <li>Try <b>wrong inputs</b> on purpose: an empty field, a negative number, a very long name. You should see a clear message, not a crash.</li>
+            <li>Found something? Tell Claude in the same chat. It fixes it, and the <b>same preview link</b> updates.</li>
+          </ol>
+          <div class="note warn"><b>No preview link after 10 minutes?</b>Tell Claude. It will read the error on the pull request and fix it.</div>
+        </article>
+
+        <!-- 7 -->
+        <article class="panel" data-step="7" data-title="Ask a Reviewer" data-who="Reviewer">
+          <span class="label">Step 7</span>
+          <h2>Ask a Reviewer, then it goes live</h2>
+          <ol class="do">
+            <li>When you're happy, tell Claude: <b>"Check this app for safety."</b> It runs the company safety check and fixes anything it finds.</li>
+            <li>On the pull request, <b>tag a Reviewer</b> and ask them to review.</li>
+            <li>The Reviewer tests the preview link, then clicks <b>Approve</b> and <b>Merge</b>. The live app updates by itself within a few minutes.</li>
+            <li>Send the live link to IT and to the people who'll use it.</li>
+          </ol>
+          <div class="note info"><b>You can't approve your own work, and that's on purpose</b>A second pair of eyes catches mistakes before colleagues see them. Apps that save company data also get a short IT check. Apps with personal data or money need IT's approval.</div>
+          <div class="note info"><b>Next change?</b>Go back to step 3 in a new chat: "On the request list, add a filter by status. Right now I scroll through everything."</div>
+        </article>
+
+        <div class="steps-nav">
+          <button class="btn" id="prev">Back</button>
+          <label class="check"><input type="checkbox" id="done-box"> I've done this step</label>
+          <button class="btn primary" id="next">Next step</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="ref" aria-labelledby="rules-h">
+      <h2 id="rules-h">Five rules to keep you safe</h2>
+      <div class="rules">
+        <div class="rule"><strong>Never paste a password or key</strong><span>Not in the chat, not in the app. If you did by accident, tell IT right away so they can change it. It's not your fault; reporting quickly is what matters.</span></div>
+        <div class="rule"><strong>Use fake data when testing</strong><span>Fake names, fake IC numbers, fake phone numbers. Never real customer or staff lists.</span></div>
+        <div class="rule"><strong>Company accounts only</strong><span>Never build on a personal GitHub, Supabase, Vercel or similar account.</span></div>
+        <div class="rule"><strong>Ask before connecting</strong><span>Sending emails, reading Google Sheets or linking another system needs IT's OK first. Claude will flag it and carry on with the rest.</span></div>
+        <div class="rule"><strong>When unsure, ask</strong><span>A short delay is cheaper than a data leak. Claude writes open questions down instead of guessing.</span></div>
+      </div>
+    </section>
+
+    <section class="ref" aria-labelledby="help-h">
+      <h2 id="help-h">If something goes wrong</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">What you see</th><th scope="col">What to do</th></tr></thead>
+          <tbody>
+            <tr><td>No preview link after 10 minutes</td><td>Tell Claude. It reads the error and fixes it. If it's stuck, ask IT.</td></tr>
+            <tr><td>The preview shows a blank page</td><td>Tell Claude what you see and what you expected.</td></tr>
+            <tr><td>"Can't load data"</td><td>The test database may be asleep. Ask IT to wake it up.</td></tr>
+            <tr><td>"You don't have access yet"</td><td>You haven't been given access to this app. Ask IT.</td></tr>
+            <tr><td>Claude keeps breaking other parts</td><td>Ask for one change at a time. If the chat has grown very long, start a new one.</td></tr>
+            <tr><td>The live app is broken</td><td>Contact a Reviewer right away. They can undo the last release in one click.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <details class="words">
+      <summary>Words you'll hear</summary>
+      <dl>
+        <dt>GitHub</dt><dd>The company's safe for code, where every version is kept.</dd>
+        <dt>Branch</dt><dd>A private copy where changes are made safely.</dd>
+        <dt>Save point (commit)</dt><dd>A record of one change. You can always go back to it.</dd>
+        <dt>Pull request</dt><dd>A request to move your changes into the live app.</dd>
+        <dt>Preview link</dt><dd>A test web address with your changes only.</dd>
+        <dt>Merge</dt><dd>Accepting the pull request, so the change goes live. Only a Reviewer does this.</dd>
+        <dt>Database</dt><dd>Where the app saves its data, like an Excel sheet that updates itself.</dd>
+        <dt>Staff login</dt><dd>The company login page. IT decides who can use each app.</dd>
+        <dt>Design kit</dt><dd>The company's standard look, so every app has the same buttons, colours and tables.</dd>
+      </dl>
+    </details>
+
+    <footer>Questions about access or a new app: contact IT. Questions about building: ask Claude.</footer>
+  </div>
+</main>
+
+<script>
+(function () {
+  var EXAMPLES = [
+    { name: 'Procurement', text: "I'm from Procurement. Purchase requests come in by email and Excel, and we lose track of which ones the manager approved. I want staff to submit a request (item, quantity, supplier, estimated price), and a manager approves or rejects it with a comment. About 15 people will use it. Supplier prices are sensitive: only Procurement should see them." },
+    { name: 'Finance', text: "I'm from Finance. Staff send petty cash claims as WhatsApp photos, and I retype them into Excel every month. I want staff to submit a claim with date, amount, purpose and a receipt photo, and I can see a monthly total per person. About 40 staff will submit; only Finance can see everyone's claims." },
+    { name: 'Admin', text: "I'm from Admin. Meeting rooms are booked on a whiteboard and we get double bookings. I want a page where staff pick a room, date and time, and see this week's bookings. It should stop two bookings at the same time. Everyone in the office (about 60 people) will use it." },
+    { name: 'Site', text: "I'm from Site. Supervisors write the daily site diary on paper and it's hard to find later. I want a phone-friendly form: date, weather, number of workers, work done and photos. The project manager can look up any day. About 8 supervisors will use it on site." },
+    { name: 'A change', text: "On the purchase request list, add a filter by status (pending, approved, rejected). Right now I have to scroll through everything to find the pending ones. I'll check it by filtering to 'pending' and seeing only those." }
+  ];
+
+  var panels = Array.prototype.slice.call(document.querySelectorAll('.panel'));
+  var rail = document.getElementById('rail');
+  var prev = document.getElementById('prev');
+  var next = document.getElementById('next');
+  var doneBox = document.getElementById('done-box');
+  var KEY = 'first-app-guide';
+  var state = { step: 0, done: {} };
+  try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved && typeof saved.step === 'number') state = saved; } catch (e) {}
+  if (!(state.step >= 0 && state.step < panels.length)) state.step = 0;
+  state.done = state.done || {};
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  panels.forEach(function (p, i) {
+    var li = document.createElement('li');
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.innerHTML = '<span class="num">' + (i + 1) + '</span><span class="t"></span><span class="who"></span>';
+    b.querySelector('.t').textContent = p.dataset.title;
+    b.querySelector('.who').textContent = p.dataset.who;
+    b.setAttribute('aria-label', 'Step ' + (i + 1) + ': ' + p.dataset.title);
+    b.addEventListener('click', function () { show(i, true); });
+    li.appendChild(b);
+    rail.appendChild(li);
+  });
+  var railButtons = rail.querySelectorAll('button');
+
+  function show(i, focus) {
+    state.step = i;
+    panels.forEach(function (p, j) { p.hidden = j !== i; });
+    railButtons.forEach(function (b, j) {
+      if (j === i) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+      b.classList.toggle('done', !!state.done[j]);
+    });
+    prev.disabled = i === 0;
+    next.textContent = i === panels.length - 1 ? 'Back to start' : 'Next step';
+    doneBox.checked = !!state.done[i];
+    save();
+    if (focus) { var h = panels[i].querySelector('h2'); h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); }
+  }
+  prev.addEventListener('click', function () { if (state.step > 0) show(state.step - 1, true); });
+  next.addEventListener('click', function () {
+    state.done[state.step] = true;
+    show(state.step === panels.length - 1 ? 0 : state.step + 1, true);
+    var top = document.querySelector('.guide').getBoundingClientRect().top;
+    if (top < 0) document.querySelector('.guide').scrollIntoView({ block: 'start' });
+  });
+  doneBox.addEventListener('change', function () { state.done[state.step] = doneBox.checked; show(state.step); });
+
+  // Examples
+  var tabs = document.getElementById('ex-tabs');
+  var exText = document.getElementById('ex-text');
+  var exLabel = document.getElementById('ex-label');
+  EXAMPLES.forEach(function (ex, i) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.setAttribute('role', 'tab'); b.textContent = ex.name;
+    b.addEventListener('click', function () { pick(i); });
+    tabs.appendChild(b);
+  });
+  function pick(i) {
+    tabs.querySelectorAll('button').forEach(function (b, j) { b.setAttribute('aria-selected', j === i ? 'true' : 'false'); });
+    exText.textContent = EXAMPLES[i].text;
+    exLabel.textContent = i === EXAMPLES.length - 1 ? 'Example · asking for a change' : 'Example · new app · ' + EXAMPLES[i].name;
+  }
+  pick(0);
+
+  // Copy buttons
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var el = document.getElementById(btn.dataset.copy);
+      var text = el.textContent;
+      function selectIt() { var r = document.createRange(); r.selectNodeContents(el); var s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = 'Selected, press Ctrl+C'; }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { btn.textContent = 'Copied'; }, selectIt);
+      } else selectIt();
+      setTimeout(function () { btn.textContent = 'Copy'; }, 2200);
+    });
+  });
+
+  show(state.step);
+})();
+</script>
+
+</body></html>
